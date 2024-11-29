@@ -20,13 +20,12 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image1]: ./examples/odabir_tacaka.png "Undistorted"
+[image2]: ./examples/kalibracija_po_tackama.png "Road Transformed"
+[image3]: ./examples/binary_slika.png "Binary Example"
+[image4]: ./examples/preoblicenje_slike.png "Warp Example"
+[image5]: ./examples/prepoznavanje_traka.png "Fit Visual"
+[image6]: ./examples/krajnji_izlaz.png "Output"
 
 ---
 
@@ -38,23 +37,25 @@ The goals / steps of this project are the following:
 
 Потребно је исправити слику правилним одабиром координата као и њиховом пребацивањем и преобличавањем слике које је подробније описано у тачки 3, а суштина је добити "испеглану" слику на којој ћемо лакше пронаћи тачке од значаја и самим тиме прецизније одриједити податке који су нам битни и издвојити их од шумова тј. небитних. Примјер слике испод:
 
-[image1]
+[image1] [image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
 Промјене боја у нијансе сиве су коришћене ради смањења количине обраде, јер тада нам не треба палета 3 боје/ствари него само 1 са којом успјешно чувамо оно што нам је кључно за распознавање на слици, ово је извршено методом cv2.cvtColor(warped_image, cv2.COLOR_BGR2GRAY) у линији 185, након тога трансформације градијената и боја су настављене појачањем контраста између линија трака и остатка пута (како бисмо омогућили успјешно филтрирање и снимака project_video02 и challenge01) позивом enhance_contrast функције која помоћу методе прилагођеног хистограмског изједначавања не само да појачава контраст између трака и остатка пута, него га и ублажава у оним дијеловима траке гдје имамо смањено освјетљење (нпр. сијенка дрвета која прекрива траке у снимку challenge01.mp4 ) и тиме уклања испрекидане тачке и олакшава проналажење линија у наредним корацима. Након тога простим позивом cv2.threshold() и одрјеђивањем високог прага за шумове 215 (што смо у стању урадити због доста добре трансформације боја урађене у enhance_contrast) добијамо бинарну слику правимо бинарну слику која изгледа:
 
-[image2]
+[image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
 Преобличавање слике у поглед на одозго ("bird's-eye view") је урађен кориштењем већ дате нам warper функције којој смо прослиједили слику цијелог погледа камере, и списак кључних тачака у тзв. "пољу од значаја" (points_of_interest) и координате нове слике на које их желимо мапирати (у нашем случају сами ћошкови слике са истом резолуцијом) - пошто се ови параметри не мијењају значајно ни на једном од снимака нити оквира (тј. слика у снимку) они су издвојени изван петље у линијама 159-163 а само преобличавање слике је извршено у 181 линији након што смо установили гдје је потребно поставити тачке које ће ограничавати "поље од значаја" са 4 исцртавања cv2.circle, примјер слике током избора тачака и након преобличавања приаказани су испод:
 
-[image3]
+[image4]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 Проналажење линија је урађено унутар функције lanes_detection (линија 33). На улазу у функцију добијамо већ трансформисану и обрађену бинарну слику (са тракама означеним бијелом бојом а осталим шумовима црном бојом). За одрјеђивање тј. детекцију средишта трака колосијека је кориштен метод "Sliding windows" који користећи хистограм проналази скокове вриједности од значаја (које су у већ филтрираној бинарној слици од раније означене бијелим пикселима) на самом дну слике (тј. непосриједно испред посматрача - у овом случају камере нашег возила), затим тражећи густо збијене вриједности од значаја изнад (даље) тражећи наредне тачке у даљини (у нашем случају 60 пиксела даље), уколико наша тренутна тачка нема одговарајућу вриједност, покушавамо пронаћи која од тачака у њеној непосриједној близини, било лијево или десно (m01, m10) има одговарајуће вриједности те помијерамо средиште наредног прозора (праваоугаоника) који ће означавати препознату линију. Њихове позиције одрјеђујемо полиномима другог степена у линији 82,83 користећи већ горе срачуната средишта трака.
+
+[image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -62,7 +63,8 @@ The goals / steps of this project are the following:
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-[image4]
+Након извршене обраде свих података, приказ изворне слике изгледа овако:
+[image6]
 
 ### Pipeline (video)
 
